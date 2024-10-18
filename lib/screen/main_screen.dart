@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_ai/bloc/open_ai_bloc.dart';
 import 'package:open_ai/bloc/open_ai_state.dart';
-import 'package:open_ai/get_it_instance.dart';
+import 'package:open_ai/utils/get_it_instance.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,13 +12,22 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final TextEditingController _textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => context.di<OpenAiBloc>(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Чат'),
+          backgroundColor: Colors.black,
+          title: const Text(
+            'Чат',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
         ),
         body: BlocBuilder<OpenAiBloc, OpenAiState>(
           builder: (context, state) {
@@ -26,9 +35,10 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: TextField(
-                        decoration: InputDecoration(
+                        controller: _textController,
+                        decoration: const InputDecoration(
                           hintText: 'Введите текст..',
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           isCollapsed: true,

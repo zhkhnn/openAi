@@ -1,0 +1,2 @@
+const OPEN_API_KEY =
+    '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';
