@@ -2,11 +2,23 @@ sealed class OpenAiEvent {}
 
 class OpenAiStarted extends OpenAiEvent {}
 
-class OpenAiResponseFetched extends OpenAiEvent {}
+class OpenAiResponseFetched extends OpenAiEvent {
+  final String answer;
 
-class OpenAiRequestChanged extends OpenAiEvent {}
+  OpenAiResponseFetched(this.answer);
+}
 
-class OpenAiMediaUploaded extends OpenAiEvent {}
+class OpenAiRequestChanged extends OpenAiEvent {
+  final String request;
+
+  OpenAiRequestChanged(this.request);
+}
+
+class OpenAiMediaUploaded extends OpenAiEvent {
+  final String filePath;
+
+  OpenAiMediaUploaded(this.filePath);
+}
 
 class OpenAiRequestSubmitted extends OpenAiEvent {
   final String text;
@@ -21,3 +33,5 @@ class OpenAiErrorOccurred extends OpenAiEvent {
 
   OpenAiErrorOccurred(this.error);
 }
+
+class OpenAiCameraOpened extends OpenAiEvent {}

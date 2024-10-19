@@ -1,27 +1,31 @@
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:open_ai/utils/keys.dart';
 
 class OpenAiRepository {
   final OpenAI _openAI;
 
-  OpenAiRepository(String apiKey)
+  OpenAiRepository()
       : _openAI = OpenAI.instance.build(
-          token: apiKey,
+          token: OPEN_API_KEY,
           baseOption: HttpSetup(
-            receiveTimeout: const Duration(seconds: 20),
-            connectTimeout: const Duration(seconds: 20),
+            receiveTimeout: const Duration(seconds: 5),
           ),
         );
 
-  Stream<String> sendMessageWithSSE(String message) {
+  Future<String> sendMessageWithSSE(String message) async {
     final request = CompleteText(
       prompt: message,
       maxTokens: 200,
-      model: TextDavinci3Model(),
+      model: ModelFromValue(model: 'gpt-4-0613'),
     );
 
-    return _openAI.onCompletionSSE(request: request).map((response) {
-      return response.choices.last.text;
-    });
+    String result = '';
+
+    await for (var response in _openAI.onCompletionSSE(request: request)) {
+      result += response.choices.last.text;
+    }
+
+    return result.trim();
   }
 
 // Future<String> getResponse();
