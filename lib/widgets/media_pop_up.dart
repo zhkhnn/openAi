@@ -25,8 +25,9 @@ class _MediaPopUpState extends State<MediaPopUp> {
             leading: Icon(Icons.camera_alt_rounded),
           ),
         ),
-        const SizedBox(
-          height: 8,
+        const Divider(
+          height: 1,
+          color: Colors.grey,
         ),
         GestureDetector(
           onTap: widget.onFiles,

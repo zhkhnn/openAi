@@ -17,10 +17,10 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$OpenAiState {
   OpenAiStatus get mainStatus => throw _privateConstructorUsedError;
-  List<Message> get messages => throw _privateConstructorUsedError;
-  Message? get request => throw _privateConstructorUsedError;
+  List<ChatMessage> get messages => throw _privateConstructorUsedError;
+  ChatMessage? get request => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
-  Message? get response => throw _privateConstructorUsedError;
+  ChatMessage? get response => throw _privateConstructorUsedError;
 
   /// Create a copy of OpenAiState
   /// with the given fields replaced by the non-null parameter values.
@@ -37,10 +37,10 @@ abstract class $OpenAiStateCopyWith<$Res> {
   @useResult
   $Res call(
       {OpenAiStatus mainStatus,
-      List<Message> messages,
-      Message? request,
+      List<ChatMessage> messages,
+      ChatMessage? request,
       String? errorMessage,
-      Message? response});
+      ChatMessage? response});
 
   $OpenAiStatusCopyWith<$Res> get mainStatus;
 }
@@ -74,11 +74,11 @@ class _$OpenAiStateCopyWithImpl<$Res, $Val extends OpenAiState>
       messages: null == messages
           ? _value.messages
           : messages // ignore: cast_nullable_to_non_nullable
-              as List<Message>,
+              as List<ChatMessage>,
       request: freezed == request
           ? _value.request
           : request // ignore: cast_nullable_to_non_nullable
-              as Message?,
+              as ChatMessage?,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -86,7 +86,7 @@ class _$OpenAiStateCopyWithImpl<$Res, $Val extends OpenAiState>
       response: freezed == response
           ? _value.response
           : response // ignore: cast_nullable_to_non_nullable
-              as Message?,
+              as ChatMessage?,
     ) as $Val);
   }
 
@@ -111,10 +111,10 @@ abstract class _$$OpenAiStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {OpenAiStatus mainStatus,
-      List<Message> messages,
-      Message? request,
+      List<ChatMessage> messages,
+      ChatMessage? request,
       String? errorMessage,
-      Message? response});
+      ChatMessage? response});
 
   @override
   $OpenAiStatusCopyWith<$Res> get mainStatus;
@@ -147,11 +147,11 @@ class __$$OpenAiStateImplCopyWithImpl<$Res>
       messages: null == messages
           ? _value._messages
           : messages // ignore: cast_nullable_to_non_nullable
-              as List<Message>,
+              as List<ChatMessage>,
       request: freezed == request
           ? _value.request
           : request // ignore: cast_nullable_to_non_nullable
-              as Message?,
+              as ChatMessage?,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -159,7 +159,7 @@ class __$$OpenAiStateImplCopyWithImpl<$Res>
       response: freezed == response
           ? _value.response
           : response // ignore: cast_nullable_to_non_nullable
-              as Message?,
+              as ChatMessage?,
     ));
   }
 }
@@ -169,7 +169,7 @@ class __$$OpenAiStateImplCopyWithImpl<$Res>
 class _$OpenAiStateImpl implements _OpenAiState {
   const _$OpenAiStateImpl(
       {this.mainStatus = const OpenAiInitial(),
-      final List<Message> messages = const [],
+      final List<ChatMessage> messages = const [],
       this.request,
       this.errorMessage,
       this.response = null})
@@ -178,22 +178,22 @@ class _$OpenAiStateImpl implements _OpenAiState {
   @override
   @JsonKey()
   final OpenAiStatus mainStatus;
-  final List<Message> _messages;
+  final List<ChatMessage> _messages;
   @override
   @JsonKey()
-  List<Message> get messages {
+  List<ChatMessage> get messages {
     if (_messages is EqualUnmodifiableListView) return _messages;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_messages);
   }
 
   @override
-  final Message? request;
+  final ChatMessage? request;
   @override
   final String? errorMessage;
   @override
   @JsonKey()
-  final Message? response;
+  final ChatMessage? response;
 
   @override
   String toString() {
@@ -236,21 +236,21 @@ class _$OpenAiStateImpl implements _OpenAiState {
 abstract class _OpenAiState implements OpenAiState {
   const factory _OpenAiState(
       {final OpenAiStatus mainStatus,
-      final List<Message> messages,
-      final Message? request,
+      final List<ChatMessage> messages,
+      final ChatMessage? request,
       final String? errorMessage,
-      final Message? response}) = _$OpenAiStateImpl;
+      final ChatMessage? response}) = _$OpenAiStateImpl;
 
   @override
   OpenAiStatus get mainStatus;
   @override
-  List<Message> get messages;
+  List<ChatMessage> get messages;
   @override
-  Message? get request;
+  ChatMessage? get request;
   @override
   String? get errorMessage;
   @override
-  Message? get response;
+  ChatMessage? get response;
 
   /// Create a copy of OpenAiState
   /// with the given fields replaced by the non-null parameter values.

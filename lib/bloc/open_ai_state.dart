@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../domain/message.dart';
+import '../domain/chat_message.dart';
 
 part 'open_ai_state.freezed.dart';
 
@@ -8,10 +8,10 @@ part 'open_ai_state.freezed.dart';
 class OpenAiState with _$OpenAiState {
   const factory OpenAiState({
     @Default(OpenAiInitial()) OpenAiStatus mainStatus,
-    @Default([]) List<Message> messages,
-    Message? request,
+    @Default([]) List<ChatMessage> messages,
+    ChatMessage? request,
     String? errorMessage,
-    @Default(null) Message? response,
+    @Default(null) ChatMessage? response,
   }) = _OpenAiState;
 }
 

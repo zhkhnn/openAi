@@ -5,7 +5,7 @@ import 'package:open_ai/bloc/open_ai_bloc.dart';
 import 'package:open_ai/bloc/open_ai_event.dart';
 import 'package:open_ai/bloc/open_ai_state.dart';
 import 'package:open_ai/utils/get_it_instance.dart';
-
+import 'package:animated_text_kit/animated_text_kit.dart';
 import '../widgets/media_pop_up.dart';
 
 class MainScreen extends StatefulWidget {
@@ -73,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
                           itemCount: state.messages.length,
                           itemBuilder: (context, index) {
                             final message = state.messages[index];
-                            final isUserMessage = message == state.response;
+                            final isUserMessage = message.isUser;
                             return Align(
                               alignment: isUserMessage
                                   ? Alignment.centerRight
@@ -96,12 +96,36 @@ class _MainScreenState extends State<MainScreen> {
                                     const SizedBox(
                                       width: 8,
                                     ),
-                                    SelectableText(
-                                      message.text,
-                                      style: const TextStyle(
-                                        color: Colors.black,
+                                    if (message.mediaUrl.isNotEmpty)
+                                      Image.network(
+                                        message
+                                            .mediaUrl, // Display the image from the URL
+                                        width: 150,
+                                        height: 150,
+                                        fit: BoxFit.cover,
                                       ),
-                                    ),
+                                    if (isUserMessage)
+                                      SelectableText(
+                                        message.text,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      )
+                                    else
+                                      AnimatedTextKit(
+                                        animatedTexts: [
+                                          TypewriterAnimatedText(
+                                            message.text,
+                                            textStyle: const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.black,
+                                            ),
+                                            speed: const Duration(
+                                                milliseconds: 50),
+                                          ),
+                                        ],
+                                        isRepeatingAnimation: false,
+                                      ),
                                   ],
                                 ),
                               ),
@@ -130,6 +154,7 @@ class _MainScreenState extends State<MainScreen> {
                                         );
                                   },
                                   decoration: const InputDecoration(
+                                    border: InputBorder.none,
                                     hintText: 'Введите текст..',
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
@@ -168,22 +193,20 @@ class _MainScreenState extends State<MainScreen> {
                                     context: context,
                                     builder: (context) {
                                       return SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.7,
-                                          child: MediaPopUp(
-                                            onCamera: () {
-                                              context
-                                                  .read<OpenAiBloc>()
-                                                  .add(OpenAiCameraOpened());
-                                            },
-                                            onFiles: () {
-                                              context
-                                                  .read<OpenAiBloc>()
-                                                  .add(OpenAiMediaSelected());
-                                            },
-                                          ));
+                                        height: 120,
+                                        child: MediaPopUp(
+                                          onCamera: () {
+                                            context
+                                                .read<OpenAiBloc>()
+                                                .add(OpenAiCameraOpened());
+                                          },
+                                          onFiles: () {
+                                            context
+                                                .read<OpenAiBloc>()
+                                                .add(OpenAiMediaSelected());
+                                          },
+                                        ),
+                                      );
                                     },
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(

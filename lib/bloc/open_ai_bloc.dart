@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
 import 'package:open_ai/bloc/open_ai_event.dart';
 
-import '../domain/message.dart';
+import '../domain/chat_message.dart';
 import '../domain/open_ai_repository.dart';
 import '../utils/base_bloc.dart';
 import 'open_ai_state.dart';
@@ -51,7 +51,9 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
         mainStatus: const OpenAiLoading(),
       ),
     );
-    final receivedAnswer = Message(text: event.answer, mediaUrl: "");
+
+    final receivedAnswer =
+        ChatMessage(text: event.answer, mediaUrl: "", isUser: false);
 
     emit(
       state.copyWith(
@@ -73,7 +75,11 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
 
     emit(
       state.copyWith(
-        request: Message(text: event.request, mediaUrl: ''),
+        request: ChatMessage(
+          text: event.request,
+          mediaUrl: '',
+          isUser: true,
+        ),
         mainStatus: const OpenAiSuccess(),
       ),
     );
@@ -82,7 +88,37 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
   Future<void> _mediaUploaded(
     OpenAiMediaUploaded event,
     Emitter<OpenAiState> emit,
-  ) async {}
+  ) async {
+    emit(
+      state.copyWith(
+        mainStatus: const OpenAiLoading(),
+      ),
+    );
+
+    try {
+      final mediaUrl = await repository.uploadMedia(event.filePath);
+
+      final mediaMessage = ChatMessage(
+        text: "📷 Image sent",
+        mediaUrl: mediaUrl,
+        isUser: true,
+      );
+
+      emit(
+        state.copyWith(
+          messages: List.of(state.messages)..add(mediaMessage),
+          mainStatus: const OpenAiSuccess(),
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          mainStatus: const OpenAiFailure(),
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
 
   Future<void> _requestSubmitted(
     OpenAiRequestSubmitted event,
@@ -94,10 +130,18 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
       ),
     );
 
-    try {
-      final response = repository.sendMessageWithSSE(event.text);
+    final userMessage =
+        ChatMessage(text: event.text, mediaUrl: "", isUser: true);
+    emit(
+      state.copyWith(
+        messages: List.of(state.messages)..add(userMessage),
+        mainStatus: const OpenAiSuccess(),
+      ),
+    );
 
-      add(OpenAiResponseFetched(response.toString()));
+    try {
+      final response = await repository.sendMessageWithSSE(event.text);
+      add(OpenAiResponseFetched(response ?? ''));
     } catch (e) {
       emit(
         state.copyWith(
@@ -144,9 +188,10 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
       if (image != null) {
-        final newMessage = Message(
+        final newMessage = ChatMessage(
           text: "Фото сделано: ${image.path}",
           mediaUrl: image.path,
+          isUser: true,
         );
 
         emit(
