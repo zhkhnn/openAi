@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:open_ai/utils/keys.dart';
+import 'package:http/http.dart' as http;
 
 class OpenAiRepository {
   final OpenAI _openAI;
@@ -14,8 +17,10 @@ class OpenAiRepository {
 
   Future<String?> sendMessageWithSSE(String text) async {
     try {
+      checkAvailableModels();
+
       final request = ChatCompleteText(
-        model: GptTurboChatModel(),
+        model: ChatModelFromValue(model: 'gpt-3.5-turbo-0125'),
         messages: [
           Map.of({"role": "user", "content": text}),
         ],
@@ -37,7 +42,23 @@ class OpenAiRepository {
     }
   }
 
-  Future<String> uploadMedia(String filePath) async {
-    return Future.delayed(const Duration(seconds: 2), () => filePath);
+  Future<void> checkAvailableModels() async {
+    const apiKey = OPEN_API_KEY;
+    final url = Uri.parse('https://api.openai.com/v1/models');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final models = jsonDecode(response.body);
+      print('Available models: $models');
+    } else {
+      print('Failed to fetch models. Status code: ${response.statusCode}');
+      print('Response: ${response.body}');
+    }
   }
 }

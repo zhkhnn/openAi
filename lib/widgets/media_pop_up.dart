@@ -20,9 +20,15 @@ class _MediaPopUpState extends State<MediaPopUp> {
       children: [
         GestureDetector(
           onTap: widget.onCamera,
-          child: const ListTile(
-            title: Text('Открыть камеру'),
-            leading: Icon(Icons.camera_alt_rounded),
+          child: ListTile(
+            title: const Text(
+              'Открыть камеру',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            leading: Icon(
+              Icons.camera_alt_rounded,
+              color: Colors.green[900],
+            ),
           ),
         ),
         const Divider(
@@ -31,9 +37,15 @@ class _MediaPopUpState extends State<MediaPopUp> {
         ),
         GestureDetector(
           onTap: widget.onFiles,
-          child: const ListTile(
-            title: Text('Открыть фото'),
-            leading: Icon(Icons.file_copy),
+          child: ListTile(
+            title: const Text(
+              'Выбрать фото',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            leading: Icon(
+              Icons.file_copy,
+              color: Colors.green[900],
+            ),
           ),
         ),
       ],

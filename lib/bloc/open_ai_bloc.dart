@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,7 +25,6 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
     on<OpenAiStarted>(_initialize);
     on<OpenAiResponseFetched>(_responseFetched);
     on<OpenAiRequestChanged>(_requestChanged);
-    on<OpenAiMediaUploaded>(_mediaUploaded);
     on<OpenAiRequestSubmitted>(_requestSubmitted);
     on<OpenAiMediaSelected>(_mediaSelected);
     on<OpenAiErrorOccurred>(_onErrorOccurred);
@@ -85,41 +85,6 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
     );
   }
 
-  Future<void> _mediaUploaded(
-    OpenAiMediaUploaded event,
-    Emitter<OpenAiState> emit,
-  ) async {
-    emit(
-      state.copyWith(
-        mainStatus: const OpenAiLoading(),
-      ),
-    );
-
-    try {
-      final mediaUrl = await repository.uploadMedia(event.filePath);
-
-      final mediaMessage = ChatMessage(
-        text: "📷 Image sent",
-        mediaUrl: mediaUrl,
-        isUser: true,
-      );
-
-      emit(
-        state.copyWith(
-          messages: List.of(state.messages)..add(mediaMessage),
-          mainStatus: const OpenAiSuccess(),
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          mainStatus: const OpenAiFailure(),
-          errorMessage: e.toString(),
-        ),
-      );
-    }
-  }
-
   Future<void> _requestSubmitted(
     OpenAiRequestSubmitted event,
     Emitter<OpenAiState> emit,
@@ -162,8 +127,26 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
       );
 
       if (result != null && result.files.isNotEmpty) {
-        String filePath = result.files.first.path!;
-        add(OpenAiMediaUploaded(filePath));
+        PlatformFile file = result.files.first;
+
+        if (file.path != null) {
+          final newMessage = ChatMessage(
+            text: "",
+            mediaUrl: file.path!,
+            isUser: true,
+          );
+
+          emit(
+            state.copyWith(
+              messages: List.of(state.messages)..add(newMessage),
+              mainStatus: const OpenAiSuccess(),
+            ),
+          );
+        } else {
+          emit(state.copyWith(mainStatus: const OpenAiFailure()));
+        }
+      } else {
+        emit(state.copyWith(mainStatus: const OpenAiFailure()));
       }
     } catch (e) {
       add(OpenAiErrorOccurred(e.toString()));
@@ -189,7 +172,7 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
 
       if (image != null) {
         final newMessage = ChatMessage(
-          text: "Фото сделано: ${image.path}",
+          text: "",
           mediaUrl: image.path,
           isUser: true,
         );
@@ -201,7 +184,7 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
           ),
         );
       } else {
-        emit(state.copyWith(mainStatus: const OpenAiSuccess()));
+        emit(state.copyWith(mainStatus: const OpenAiFailure()));
       }
     } catch (e) {
       emit(

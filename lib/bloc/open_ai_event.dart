@@ -14,12 +14,6 @@ class OpenAiRequestChanged extends OpenAiEvent {
   OpenAiRequestChanged(this.request);
 }
 
-class OpenAiMediaUploaded extends OpenAiEvent {
-  final String filePath;
-
-  OpenAiMediaUploaded(this.filePath);
-}
-
 class OpenAiRequestSubmitted extends OpenAiEvent {
   final String text;
 
