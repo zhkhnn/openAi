@@ -2,21 +2,22 @@ import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:open_ai/bloc/open_ai_bloc.dart';
 import 'package:open_ai/bloc/open_ai_event.dart';
 import 'package:open_ai/bloc/open_ai_state.dart';
-import 'package:open_ai/utils/get_it_instance.dart';
+import 'package:open_ai/utils/context_injection.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import '../widgets/media_pop_up.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool isSentButtonVisible = false;
@@ -30,15 +31,12 @@ class _MainScreenState extends State<MainScreen> {
         isSentButtonVisible = _textController.text.isNotEmpty;
       });
     });
-  }
-
-  void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
         );
       }
     });
@@ -68,18 +66,14 @@ class _MainScreenState extends State<MainScreen> {
             body: BlocConsumer<OpenAiBloc, OpenAiState>(
               listener: (context, state) {
                 state.mainStatus.maybeWhen(
-                    orElse: () {},
-                    failure: () {
-                      Flushbar(
-                        title: state.errorMessage,
-                        message:
-                            'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-                        duration: const Duration(seconds: 3),
-                      );
-                    });
-                if (state.messages.isNotEmpty) {
-                  _scrollToBottom();
-                }
+                  orElse: () {},
+                  failure: () {
+                    Flushbar(
+                      title: state.errorMessage,
+                      duration: const Duration(seconds: 3),
+                    );
+                  },
+                );
               },
               builder: (context, state) {
                 return Column(
@@ -110,7 +104,7 @@ class _MainScreenState extends State<MainScreen> {
                                     : Colors.green,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   isUserMessage == true
@@ -153,9 +147,6 @@ class _MainScreenState extends State<MainScreen> {
                                         ],
                                         isRepeatingAnimation: false,
                                         displayFullTextOnTap: true,
-                                        onNext: (index, isLast) {
-                                          _scrollToBottom();
-                                        },
                                       ),
                                     ),
                                 ],
@@ -189,29 +180,38 @@ class _MainScreenState extends State<MainScreen> {
                                 maxLines: 8,
                                 decoration: InputDecoration(
                                   suffixIconColor: Colors.green[900],
-                                  suffixIcon: isSentButtonVisible
-                                      ? IconButton(
-                                          icon: const Icon(Icons.send),
-                                          onPressed: () {
-                                            if (_textController
-                                                .text.isNotEmpty) {
-                                              context.read<OpenAiBloc>().add(
-                                                    OpenAiRequestSubmitted(
-                                                        _textController.text),
-                                                  );
-                                              _textController.clear();
-                                            }
-                                            FocusScope.of(context)
-                                                .requestFocus(FocusNode());
-                                          },
+                                  suffixIcon: state.mainStatus is OpenAiLoading
+                                      ? const LoadingIndicator(
+                                          indicatorType:
+                                              Indicator.ballPulseSync,
+                                          colors: [Colors.white],
+                                          strokeWidth: 2,
                                         )
-                                      : null,
+                                      : isSentButtonVisible
+                                          ? IconButton(
+                                              icon: const Icon(Icons.send),
+                                              onPressed: () {
+                                                if (_textController
+                                                    .text.isNotEmpty) {
+                                                  context
+                                                      .read<OpenAiBloc>()
+                                                      .add(
+                                                        OpenAiRequestSubmitted(
+                                                            _textController
+                                                                .text),
+                                                      );
+                                                  _textController.clear();
+                                                }
+                                                FocusScope.of(context)
+                                                    .requestFocus(FocusNode());
+                                              },
+                                            )
+                                          : null,
                                   border: InputBorder.none,
                                   hintText: 'Введите текст..',
                                   floatingLabelBehavior:
                                       FloatingLabelBehavior.never,
                                   isCollapsed: true,
-                                  labelText: 'Введите текст..',
                                   alignLabelWithHint: true,
                                   labelStyle: const TextStyle(
                                     fontWeight: FontWeight.w400,

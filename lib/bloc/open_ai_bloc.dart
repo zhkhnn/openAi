@@ -56,8 +56,6 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
     final receivedAnswer =
         ChatMessage(text: event.answer, mediaUrl: "", isUser: false);
 
-    print('RECEIVED ANSWER ${receivedAnswer}');
-
     emit(
       state.copyWith(
         messages: List.of(state.messages)..add(receivedAnswer),
@@ -103,7 +101,6 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
     emit(
       state.copyWith(
         messages: List.of(state.messages)..add(userMessage),
-        mainStatus: const OpenAiSuccess(),
       ),
     );
 
@@ -111,6 +108,11 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
       final response = await repository.sendMessageWithSSE(event.text);
       add(
         OpenAiResponseFetched(response ?? ''),
+      );
+      emit(
+        state.copyWith(
+          mainStatus: const OpenAiSuccess(),
+        ),
       );
     } catch (e) {
       emit(

@@ -1,2 +1,2 @@
 const OPEN_API_KEY =
-    'sk-uD0HdxOTo1aFIaWc_XYdDeJloBBZaa2AvD8L6WNsjNT3BlbkFJg98j4jXz5L_zAxJ0AG5GLV7G9feEjqpfGsWvvBArIA';
+    'sk-CgYHaNSejVuzbCA6vRT1gd7Pa_p9_r6TutCJArTkINT3BlbkFJYxdm7UTPtnl3BL60l5ufTj1yqbP6vKkt7gsAPEtXYA';

@@ -5,7 +5,7 @@ class OpenAiRepository {
   final OpenAI _openAI = OpenAI.instance.build(
     token: OPEN_API_KEY,
     baseOption: HttpSetup(
-      receiveTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 15),
     ),
   );
 
@@ -24,8 +24,7 @@ class OpenAiRepository {
 
       final response = await _openAI.onChatCompletion(request: request);
       if (response != null) {
-        return response.choices[0].message?.content
-            .trim(); // Extract the answer
+        return response.choices[0].message?.content.trim();
       } else {
         throw Exception("No response from OpenAI.");
       }

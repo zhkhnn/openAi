@@ -9,7 +9,7 @@ class OpenAiState with _$OpenAiState {
   const factory OpenAiState({
     @Default(OpenAiInitial()) OpenAiStatus mainStatus,
     @Default([]) List<ChatMessage> messages,
-    ChatMessage? request,
+    @Default(null) ChatMessage? request,
     String? errorMessage,
     @Default(null) ChatMessage? response,
   }) = _OpenAiState;

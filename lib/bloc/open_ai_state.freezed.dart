@@ -170,7 +170,7 @@ class _$OpenAiStateImpl implements _OpenAiState {
   const _$OpenAiStateImpl(
       {this.mainStatus = const OpenAiInitial(),
       final List<ChatMessage> messages = const [],
-      this.request,
+      this.request = null,
       this.errorMessage,
       this.response = null})
       : _messages = messages;
@@ -188,6 +188,7 @@ class _$OpenAiStateImpl implements _OpenAiState {
   }
 
   @override
+  @JsonKey()
   final ChatMessage? request;
   @override
   final String? errorMessage;
