@@ -1,19 +1,20 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
 import 'package:open_ai/bloc/open_ai_event.dart';
 
-import '../domain/chat_message.dart';
-import '../domain/open_ai_repository.dart';
+import '../model/chat_message.dart';
+import '../repository/open_ai_repository.dart';
 import '../utils/base_bloc.dart';
 import 'open_ai_state.dart';
 
 @injectable
 class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
-  OpenAiBloc(this.repository) : super(const OpenAiState()) {
+  OpenAiBloc(
+    this.repository,
+  ) : super(const OpenAiState()) {
     _setupHandlers();
     add(OpenAiStarted());
   }
@@ -54,6 +55,8 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
 
     final receivedAnswer =
         ChatMessage(text: event.answer, mediaUrl: "", isUser: false);
+
+    print('RECEIVED ANSWER ${receivedAnswer}');
 
     emit(
       state.copyWith(
@@ -106,7 +109,9 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
 
     try {
       final response = await repository.sendMessageWithSSE(event.text);
-      add(OpenAiResponseFetched(response ?? ''));
+      add(
+        OpenAiResponseFetched(response ?? ''),
+      );
     } catch (e) {
       emit(
         state.copyWith(
@@ -123,7 +128,9 @@ class OpenAiBloc extends BaseBloc<OpenAiEvent, OpenAiState> {
   ) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
+        type: FileType.custom,
+        allowMultiple: true,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
       );
 
       if (result != null && result.files.isNotEmpty) {

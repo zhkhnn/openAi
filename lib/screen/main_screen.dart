@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +18,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool isSentButtonVisible = false;
 
   @override
@@ -29,6 +29,18 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         isSentButtonVisible = _textController.text.isNotEmpty;
       });
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
@@ -65,18 +77,27 @@ class _MainScreenState extends State<MainScreen> {
                         duration: const Duration(seconds: 3),
                       );
                     });
+                if (state.messages.isNotEmpty) {
+                  _scrollToBottom();
+                }
               },
               builder: (context, state) {
                 return Column(
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        controller: _scrollController,
+                        shrinkWrap: true,
                         itemCount: state.messages.length,
                         itemBuilder: (context, index) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.jumpTo(
+                                _scrollController.position.maxScrollExtent);
+                          }
                           final message = state.messages[index];
                           final isUserMessage = message.isUser;
                           return Align(
-                            alignment: isUserMessage
+                            alignment: isUserMessage == true
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
@@ -84,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isUserMessage
+                                color: isUserMessage == true
                                     ? Colors.grey[300]
                                     : Colors.green,
                               ),
@@ -92,20 +113,20 @@ class _MainScreenState extends State<MainScreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isUserMessage
+                                  isUserMessage == true
                                       ? const Icon(Icons.person)
                                       : const Icon(Icons.flaky_outlined),
                                   const SizedBox(
                                     width: 8,
                                   ),
-                                  if (message.mediaUrl.isNotEmpty)
+                                  if (message.mediaUrl!.isNotEmpty)
                                     Image.file(
-                                      File(message.mediaUrl),
+                                      File(message.mediaUrl ?? ''),
                                       width: 150,
                                       height: 200,
                                       fit: BoxFit.cover,
                                     ),
-                                  if (isUserMessage)
+                                  if (isUserMessage == true)
                                     Expanded(
                                       child: Text(
                                         message.text,
@@ -117,19 +138,25 @@ class _MainScreenState extends State<MainScreen> {
                                       ),
                                     )
                                   else
-                                    AnimatedTextKit(
-                                      animatedTexts: [
-                                        TypewriterAnimatedText(
-                                          message.text,
-                                          textStyle: const TextStyle(
-                                            fontSize: 14.0,
-                                            color: Colors.black,
+                                    Expanded(
+                                      child: AnimatedTextKit(
+                                        animatedTexts: [
+                                          TypewriterAnimatedText(
+                                            message.text,
+                                            textStyle: const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.black,
+                                            ),
+                                            speed: const Duration(
+                                                milliseconds: 30),
                                           ),
-                                          speed:
-                                              const Duration(milliseconds: 50),
-                                        ),
-                                      ],
-                                      isRepeatingAnimation: false,
+                                        ],
+                                        isRepeatingAnimation: false,
+                                        displayFullTextOnTap: true,
+                                        onNext: (index, isLast) {
+                                          _scrollToBottom();
+                                        },
+                                      ),
                                     ),
                                 ],
                               ),
@@ -174,6 +201,8 @@ class _MainScreenState extends State<MainScreen> {
                                                   );
                                               _textController.clear();
                                             }
+                                            FocusScope.of(context)
+                                                .requestFocus(FocusNode());
                                           },
                                         )
                                       : null,

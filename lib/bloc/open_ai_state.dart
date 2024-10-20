@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../domain/chat_message.dart';
+import '../model/chat_message.dart';
 
 part 'open_ai_state.freezed.dart';
 
